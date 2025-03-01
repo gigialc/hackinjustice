@@ -1,32 +1,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import PropertySearch from '../components/PropertySearch'
 import PropertyCard from '../components/PropertyCard'
-import Auth from '../components/Auth'
+import PropertySearch from '../components/PropertySearch'
+import Footer from '../components/Footer'
 
 export default function Home() {
-  const [session, setSession] = useState(null)
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchParams, setSearchParams] = useState(null)
 
   useEffect(() => {
-    // Check for active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    // Set up auth listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session)
-      }
-    )
-
-    // Fetch initial properties
     fetchProperties()
-
-    return () => subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
@@ -84,22 +68,25 @@ export default function Home() {
   }
 
   return (
-    <div className="container">
+    <div>
       <header>
-        <h1>MedBnB - Medical Travel Accommodations</h1>
-        {!session ? (
-          <Auth />
-        ) : (
-          <div className="user-welcome">
-            <p>Welcome, {session.user.email}</p>
-            <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+        <div className="container">
+          <div className="header-content">
+            <div className="logo">Med<span>BnB</span></div>
           </div>
-        )}
+        </div>
       </header>
 
-      <main>
+      <div className="hero">
+        <div className="container">
+          <h1>Find Medical-Friendly Accommodations</h1>
+          <p>Comfortable stays near hospitals and medical facilities with accessibility features for patients and caregivers.</p>
+        </div>
+      </div>
+
+      <main className="container">
         <section className="search-section">
-          <h2>Find Medical-Friendly Accommodations</h2>
+          <h2>Search for Accommodations</h2>
           <PropertySearch onSearch={handleSearch} />
         </section>
 
@@ -118,6 +105,8 @@ export default function Home() {
           )}
         </section>
       </main>
+
+      <Footer />
     </div>
   )
 } 
