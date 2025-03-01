@@ -1,9 +1,4 @@
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey)
 
 export default function PropertySearch({ onSearch }) {
   const [location, setLocation] = useState('')
@@ -12,10 +7,34 @@ export default function PropertySearch({ onSearch }) {
   const [guests, setGuests] = useState(1)
   const [hospital, setHospital] = useState('')
   const [accessibilityFeatures, setAccessibilityFeatures] = useState([])
-  const [results, setResults] = useState([])
+  const [hotels, setHotels] = useState([]) // Store hotel results
+  const [loading, setLoading] = useState(false) // Loading state
+  const [error, setError] = useState(null) // Error state
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city?cityCode=${location}&radius=5&radiusUnit=KM`, {
+        headers: {
+          Authorization: `Bearer oath`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch hotels')
+      }
+
+      const data = await response.json()
+      setHotels(data.data)
+    } catch (error) {
+      console.error('Error fetching hotels:', error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
 
     onSearch({
       location,
@@ -25,59 +44,32 @@ export default function PropertySearch({ onSearch }) {
       hospital,
       accessibilityFeatures
     })
-
-    // Query the hospital_proximity table and join with properties.
-    // Here we filter based on the hospital name (using a case-insensitive like).
-    // You can expand the query to include additional filters (e.g., location).
-    const { data, error } = await supabase
-      .from('hospital_proximity')
-      .select(`
-        id,
-        distance_in_miles,
-        travel_time_minutes,
-        properties: property_id (
-          id,
-          title,
-          description,
-          image_url,
-          city,
-          state,
-          price_per_night
-        )
-      `)
-      .ilike('hospital_name', `%${hospital}%`)
-
-    if (error) {
-      console.error('Error fetching properties:', error)
-      setResults([])
-    } else {
-      setResults(data)
-    }
   }
 
   const handleAccessibilityChange = (feature) => {
-    if (accessibilityFeatures.includes(feature)) {
-      setAccessibilityFeatures(accessibilityFeatures.filter(f => f !== feature))
-    } else {
-      setAccessibilityFeatures([...accessibilityFeatures, feature])
-    }
+    setAccessibilityFeatures((prevFeatures) =>
+      prevFeatures.includes(feature)
+        ? prevFeatures.filter((f) => f !== feature)
+        : [...prevFeatures, feature]
+    )
   }
 
   return (
-    <>
+    <div>
       <form onSubmit={handleSubmit} className="search-form">
         <div className="search-row">
           <div className="search-field">
-            <label htmlFor="location">Location</label>
+            <label htmlFor="location">City Code (IATA)</label>
             <input
               id="location"
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="City, State, or Zip"
+              placeholder="E.g., PAR (Paris)"
+              required
             />
           </div>
-          
+
           <div className="search-field">
             <label htmlFor="hospital">Hospital/Medical Facility</label>
             <input
@@ -89,7 +81,7 @@ export default function PropertySearch({ onSearch }) {
             />
           </div>
         </div>
-        
+
         <div className="search-row">
           <div className="search-field">
             <label htmlFor="checkIn">Check In</label>
@@ -100,7 +92,7 @@ export default function PropertySearch({ onSearch }) {
               onChange={(e) => setCheckIn(e.target.value)}
             />
           </div>
-          
+
           <div className="search-field">
             <label htmlFor="checkOut">Check Out</label>
             <input
@@ -110,7 +102,7 @@ export default function PropertySearch({ onSearch }) {
               onChange={(e) => setCheckOut(e.target.value)}
             />
           </div>
-          
+
           <div className="search-field">
             <label htmlFor="guests">Guests</label>
             <input
@@ -122,69 +114,48 @@ export default function PropertySearch({ onSearch }) {
             />
           </div>
         </div>
-        
+
         <div className="accessibility-filters">
           <h4>Accessibility Features</h4>
           <div className="checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={accessibilityFeatures.includes('wheelchair_accessible')}
-                onChange={() => handleAccessibilityChange('wheelchair_accessible')}
-              />
-              Wheelchair Accessible
-            </label>
-            
-            <label>
-              <input
-                type="checkbox"
-                checked={accessibilityFeatures.includes('step_free_access')}
-                onChange={() => handleAccessibilityChange('step_free_access')}
-              />
-              Step-Free Access
-            </label>
-            
-            <label>
-              <input
-                type="checkbox"
-                checked={accessibilityFeatures.includes('hospital_bed')}
-                onChange={() => handleAccessibilityChange('hospital_bed')}
-              />
-              Hospital Bed
-            </label>
-            
-            <label>
-              <input
-                type="checkbox"
-                checked={accessibilityFeatures.includes('adapted_bathroom')}
-                onChange={() => handleAccessibilityChange('adapted_bathroom')}
-              />
-              Adapted Bathroom
-            </label>
+            {[
+              { label: "Wheelchair Accessible", value: "wheelchair_accessible" },
+              { label: "Step-Free Access", value: "step_free_access" },
+              { label: "Hospital Bed", value: "hospital_bed" },
+              { label: "Adapted Bathroom", value: "adapted_bathroom" }
+            ].map((feature) => (
+              <label key={feature.value}>
+                <input
+                  type="checkbox"
+                  checked={accessibilityFeatures.includes(feature.value)}
+                  onChange={() => handleAccessibilityChange(feature.value)}
+                />
+                {feature.label}
+              </label>
+            ))}
           </div>
         </div>
-        
-        <button type="submit" className="search-button">Search</button>
+
+        <button type="submit" className="search-button" disabled={loading}>
+          {loading ? "Searching..." : "Search"}
+        </button>
       </form>
 
-      {/* Display search results */}
-      <div className="results">
-        {results.length > 0 ? (
-          results.map((item) => (
-            <div key={item.id} className="result-item">
-              <h3>{item.properties.title}</h3>
-              <img src={item.properties.image_url} alt={item.properties.title} style={{ maxWidth: '300px' }} />
-              <p>{item.properties.description}</p>
-              <p><strong>City:</strong> {item.properties.city}, {item.properties.state}</p>
-              <p><strong>Price Per Night:</strong> ${item.properties.price_per_night}</p>
-              <p><strong>Distance to Hospital:</strong> {item.distance_in_miles} miles</p>
-              <p><strong>Travel Time:</strong> {item.travel_time_minutes} minutes</p>
-            </div>
-          ))
-        ) : (
-          <p>No results found. Please try a different hospital or adjust your search.</p>
-        )}
-      </div>
-    </>
+      {/* Display results */}
+      {loading && <p>Loading hotels...</p>}
+      {error && <p className="error">{error}</p>}
+      {hotels.length > 0 && (
+        <div className="hotel-results">
+          <h3>Hotels Found</h3>
+          <ul>
+            {hotels.map((hotel) => (
+              <li key={hotel.hotelId}>
+                <strong>{hotel.name}</strong> - {hotel.distance.value} {hotel.distance.unit} away
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   )
 }
