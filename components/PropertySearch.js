@@ -11,17 +11,41 @@ export default function PropertySearch({ onSearch }) {
   const [loading, setLoading] = useState(false) // Loading state
   const [error, setError] = useState(null) // Error state
 
+  // Function to fetch access token from Amadeus
+  const fetchAccessToken = async () => {
+    const response = await fetch("https://test.api.amadeus.com/v1/security/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: "API KEY",
+        client_secret: "API KEY SECRET"
+      })
+    })
+    const data = await response.json()
+    return data.access_token
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
-      const response = await fetch(`https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city?cityCode=${location}&radius=5&radiusUnit=KM`, {
-        headers: {
-          Authorization: `Bearer oath`
+      // Retrieve a valid access token
+      const token = await fetchAccessToken()
+
+      // Use the token to fetch hotels near the city code provided
+      const response = await fetch(
+        `https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city?cityCode=${location}&radius=5&radiusUnit=KM`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
+      )
 
       if (!response.ok) {
         throw new Error('Failed to fetch hotels')
