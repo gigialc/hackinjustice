@@ -102,17 +102,34 @@ header {
 
 /* Search Section */
 .search-section {
-  margin: 30px 0;
-  padding: 25px;
+  margin-bottom: 25px;
+  padding: 20px;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: var(--card-shadow);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.search-section h2 {
-  margin-bottom: 20px;
+.search-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
   color: var(--text-color);
-  font-size: 1.5rem;
+}
+
+.hospital-section {
+  border-left: 4px solid var(--primary-color);
+}
+
+.city-section {
+  border-left: 4px solid var(--secondary-color);
+  background-color: #fafafa;
+}
+
+.helper-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--text-light);
 }
 
 .search-form {
@@ -189,19 +206,10 @@ header {
 }
 
 .search-button {
-  padding: 14px 24px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  align-self: flex-end;
-  transition: background-color 0.2s;
-}
-
-.search-button:hover {
-  background-color: var(--primary-dark);
+  margin-top: 10px;
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 1.1rem;
 }
 
 /* Properties Section */
@@ -582,4 +590,268 @@ footer {
   .footer-content {
     grid-template-columns: 1fr;
   }
+}
+
+/* Add these styles to your existing CSS file */
+
+.hospital-search {
+  position: relative;
+  width: 100%;
+}
+
+.hospital-results-list {
+  position: absolute;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hospital-result-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hospital-result-item:hover {
+  background-color: #f0f9ff;
+}
+
+.hospital-result-item p {
+  margin: 5px 0 0;
+  font-size: 0.9em;
+  color: var(--text-light);
+}
+
+.selected-hospital {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.hotels-list {
+  list-style: none;
+  padding: 0;
+}
+
+.hotel-item {
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.distance {
+  font-size: 0.9em;
+  color: var(--text-light);
+}
+
+/* Add these simplified styles to your globals.css */
+
+.single-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.search-panel {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-panel h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+.description {
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+.search-form-simple {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-item label {
+  font-weight: 500;
+}
+
+.simple-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.submit-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.submit-button:disabled {
+  background-color: #a3bffa;
+  cursor: not-allowed;
+}
+
+.results-panel {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.selected-hospital-simple {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.selected-hospital-simple h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.hospital-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hospital-details p {
+  color: var(--text-light);
+  margin: 0;
+}
+
+.loading-indicator, .error-message, .no-results {
+  padding: 30px 0;
+  text-align: center;
+  color: var(--text-light);
+}
+
+.error-message {
+  color: var(--danger-color);
+}
+
+.hotel-results-simple h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.hotel-list-simple {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hotel-card {
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hotel-name {
+  font-weight: 500;
+}
+
+.hotel-distance {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.distance-value {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+@media (max-width: 600px) {
+  .hotel-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+/* Add these styles to your globals.css */
+
+.required {
+  color: var(--danger-color);
+  margin-left: 3px;
+}
+
+.selection-indicator {
+  margin-top: 8px;
+  color: var(--success-color);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.checkmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: var(--success-color);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: bold;
 } 
